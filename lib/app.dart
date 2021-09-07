@@ -1,7 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:domicilios_delivery/src/page/Home.dart';
 import 'package:domicilios_delivery/src/page/login.dart';
+import 'package:flutter/material.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -9,7 +15,7 @@ class MyApp extends StatelessWidget {
       initialRoute: 'login',
       routes: {
         'login': (BuildContext context) => Login(),
-
+        'home': (BuildContext context) => Home(),
       },
     );
   }

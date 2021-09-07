@@ -17,6 +17,14 @@ class PreferenciasUsuario {
   }
 
   // GET y SET del nombre
+  get numero {
+    return _prefs.getString('numero') ?? '';
+  }
+
+  set numero(int value) {
+    _prefs.setString('numero', value.toString());
+  }
+
   get token {
     return _prefs.getString('token') ?? '';
   }

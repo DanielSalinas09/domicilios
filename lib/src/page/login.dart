@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
+import 'package:domicilios_delivery/preferencias_usuario/preferencias.dart';
 import 'package:domicilios_delivery/src/models/loginModals.dart';
-import 'package:domicilios_delivery/src/providers/infoProvider.dart';
 import 'package:domicilios_delivery/src/providers/loginProvider-verification.dart';
+//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:domicilios_delivery/src/utils/util.dart' as utils;
-
-
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Login extends StatefulWidget {
   Login({Key key}) : super(key: key);
@@ -20,7 +19,8 @@ class _LoginState extends State<Login> {
   final loginProvider = new LoginProvider();
   LoginModal loginModal = new LoginModal();
 
-  // InfoProvider infoProvider;
+  TextEditingController clear = new TextEditingController();
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,37 +45,32 @@ class _LoginState extends State<Login> {
   Widget _button() {
     // ignore: deprecated_member_use
     return RaisedButton(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 60),
-      color: Color(0xF2EB1515),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(60),
-      ),
-      child: Text(
-        'Enviar Codigo',
-        style: TextStyle(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-      ),
-      onPressed: () => submit(),
-    );
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 60),
+        color: Color(0xF2EB1515),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(60),
+        ),
+        child: Text(
+          'Enviar Codigo',
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        onPressed: () {
+          submit();
+          clear.clear();
+        });
   }
 
-  submit() async {
-    final infoProvider = Provider.of<InfoProvider>(this.context, listen: false);
+  submit() {
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
 
-      bool info = await loginProvider.user(infoProvider.number);
-      print("Codigo " + loginModal.code.toString());
-      if (info) {
-        Navigator.pushNamed(context, 'loginVerificacion');
-      } else {
-        _mostrarAlert(loginProvider.message);
-      }
-      print(info);
+      Navigator.pushNamed(context, 'home');
     }
+    return true;
   }
 
-  void _mostrarAlert(String message) {
+  /* void _mostrarAlert(String message) {
     showDialog(
         useSafeArea: false,
         context: context,
@@ -97,11 +92,11 @@ class _LoginState extends State<Login> {
             ],
           );
         });
-  }
+  } */
 
   Widget _fondo(BuildContext context) {
     return Container(
-      height: 350,
+      height: 320,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
@@ -137,7 +132,7 @@ class _LoginState extends State<Login> {
   Widget _logo() {
     return Container(
       child: Center(
-        heightFactor: 1.8,
+        heightFactor: 1.5,
         child: Image(
           image: AssetImage('assets/img/logo.jpg'),
         ),
@@ -163,11 +158,11 @@ class _LoginState extends State<Login> {
   }
 
   Widget _input() {
-    final infoProvider = Provider.of<InfoProvider>(this.context);
+    final _prefs = new PreferenciasUsuario();
     return TextFormField(
       keyboardType: TextInputType.number,
+      controller: clear,
       decoration: InputDecoration(),
-      onSaved: (value) => infoProvider.number = int.parse(value),
       validator: (value) {
         if (utils.isNumeric(value) && value.length == 10) {
           return null;
@@ -175,6 +170,7 @@ class _LoginState extends State<Login> {
           return 'Ingrese su numero de telefono';
         }
       },
+      onSaved: (value) => _prefs.numero = int.parse(value),
     );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 
 class InfoProvider with ChangeNotifier {
   String _token = 'hola';
