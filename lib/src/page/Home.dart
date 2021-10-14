@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:domicilios_delivery/src/utils/DireccionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,50 +14,55 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _mapStyle;
-  var mapController;
+  var _mapController;
+  final LatLng fromPoint = LatLng(10.909075, -74.802325);
+  final LatLng toPoint = LatLng(10.988433, -74.788153);
+
+
   @override
   void initState() {
     super.initState();
 
-    rootBundle.loadString('assets/map_style.txt').then((string) {
-      _mapStyle = string;
-    });
+    // rootBundle.loadString('assets/map_style.txt').then((string) {
+    //   _mapStyle = string;
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.red,
-        title: Text('Entregar'),
+        title: Center(child: Text('Entregar',style: TextStyle(),)),
       ),
-      body: Container(
-        margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
-        child: Column(
-          children: [
-            Container(
-              child: Center(
-                child: Text(
-                  "Entregar",
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-            ),
-            Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
-                height: 400,
-                child: _map()),
-            _direccion(),
-            _pedido(),
-            _valor(),
-            _boton(),
-          ],
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: Column(
+            children: [
+              Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
+                  height: 400,
+                  child: Consumer<DireccionProvider>(
+                    builder: (BuildContext context , DireccionProvider api,Widget child){
+                      return _map(api);
+                    },
+                    )),
+              _direccion(),
+              _pedido(),
+              _valor(),
+              _boton(),
+            ],
+          ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.zoom_in),
+        onPressed: (){_centerView();},
+        ),
     );
   }
 
@@ -62,22 +70,44 @@ class _HomeState extends State<Home> {
     var tmp = Set<Marker>();
     tmp.add(Marker(
       markerId: MarkerId("value"),
-      position: LatLng(10.909075, -74.802325),
+      position: fromPoint
+
+    ));
+    tmp.add(Marker(
+      markerId: MarkerId('destino'),
+      position: toPoint
     ));
     return tmp;
   }
 
-  Widget _map() {
+  Widget _map(DireccionProvider api) {
     return GoogleMap(
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        zoomControlsEnabled: true,
         initialCameraPosition: CameraPosition(
           target: LatLng(10.909075, -74.802325),
-          zoom: 12,
+          zoom: 16,
         ),
+        polylines: api.currentRoute,
         markers: _createMarkers(),
         onMapCreated: (GoogleMapController controller) {
-          mapController = controller;
-          mapController.setMapStyle(_mapStyle);
+          _mapController = controller;
+          _centerView();
+          //mapController.setMapStyle(_mapStyle);
+          var api = Provider.of<DireccionProvider>(context,listen:false);
+          api.findDirections(fromPoint,toPoint);
         });
+  }
+  _centerView()async{
+    await _mapController.getVisibleRegion();
+    var left= min(fromPoint.latitude,toPoint.latitude);
+    var right= max(fromPoint.latitude,toPoint.latitude);
+    var botton= min(fromPoint.longitude,toPoint.longitude);
+    var top = max(fromPoint.longitude,toPoint.longitude);
+    var bounds = LatLngBounds(southwest:LatLng(left,botton),northeast: LatLng(right,top));
+    var cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
+    _mapController.animateCamera(cameraUpdate);
   }
 }
 
