@@ -17,7 +17,7 @@ class _MyAppState extends State<MyApp> {
       create: (_)=>DireccionProvider(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: 'home',
+        initialRoute: 'login',
         routes: {
           'login': (BuildContext context) => Login(),
           'home': (BuildContext context) => Home(),
