@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:domicilios_delivery/preferencias_usuario/preferencias.dart';
 import 'package:domicilios_delivery/src/utils/DireccionProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
@@ -13,14 +15,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  
   String _mapStyle;
   var _mapController;
   final LatLng fromPoint = LatLng(10.909075, -74.802325);
   final LatLng toPoint = LatLng(10.988433, -74.788153);
-
+  final _prefs=new PreferenciasUsuario();
 
   @override
   void initState() {
+    EasyLoading.dismiss();
     super.initState();
 
     // rootBundle.loadString('assets/map_style.txt').then((string) {
@@ -30,6 +34,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print("Token es: "+_prefs.token);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
