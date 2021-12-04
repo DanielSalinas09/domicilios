@@ -33,11 +33,12 @@ class LoginProvider {
     });
     Map<String, dynamic> respDecode=jsonDecode(response.body);
     if(respDecode['message']=='verificacion completada'){
-      return [true,respDecode['token']];
+      
+      return [true,respDecode['token'],respDecode['domiciliario']['_id']];
     }else{
       return [false,respDecode['message']];
     }
-    return[];
+    
   }
 
 }
